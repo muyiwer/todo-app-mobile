@@ -8,8 +8,8 @@ import {
   TextInput,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FilterType } from "../types";
 import { useTasks } from "../hooks/useTasks";
+import { FilterType } from "../types";
 import TaskItem from "../components/TaskItem";
 import { RootStackParamList } from "../types";
 import { ThemeContext } from "../contexts/ThemeContext";
