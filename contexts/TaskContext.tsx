@@ -35,13 +35,16 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
   switch (action.type) {
     case "SET_TASKS":
       return { ...state, tasks: action.payload };
-    case "ADD_TASK":
-      return {
-        ...state,
-        tasks: [...state.tasks, action.payload].sort((a, b) =>
-          a.dueDate && b.dueDate ? a.dueDate.localeCompare(b.dueDate) : 0
-        ),
-      };
+      case 'ADD_TASK':
+        return {
+          ...state,
+          tasks: [...state.tasks, action.payload].sort((a, b) => {
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return 1; 
+            if (!b.dueDate) return -1; 
+            return a.dueDate.getTime() - b.dueDate.getTime();
+          }),
+        };
     case "TOGGLE_TASK_COMPLETION":
       return {
         ...state,
@@ -80,7 +83,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     const loadTasks = async () => {
       try {
         const storedTasks = await AsyncStorage.getItem("tasks");
-        console.log("storedTasks", storedTasks);
         if (storedTasks) {
           dispatch({ type: "SET_TASKS", payload: JSON.parse(storedTasks) });
         }
@@ -95,7 +97,6 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const saveTasks = async () => {
       try {
-        console.log("tasks", state.tasks);
         await AsyncStorage.setItem("tasks", JSON.stringify(state.tasks));
       } catch (error) {
         console.error("Error saving tasks:", error);

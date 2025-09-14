@@ -6,20 +6,26 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Platform,
+  Pressable,
+  Keyboard,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useTasks } from "../hooks/useTasks";
 import { RootStackParamList } from "../types";
 import { ThemeContext } from "../contexts/ThemeContext";
+import { formatDate } from "../lib/utils";
 
 type Props = NativeStackScreenProps<RootStackParamList, "AddTask">;
 
 const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState<Date | null>(null);
   const { addTask } = useTasks();
   const { theme } = useContext(ThemeContext);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleAddTask = async () => {
     if (!title.trim()) {
@@ -36,6 +42,19 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
     });
 
     navigation.goBack();
+  };
+
+  const showPicker = () => {
+    Keyboard.dismiss();
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (_event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || dueDate;
+    setShowDatePicker(Platform.OS === 'ios');
+    if (currentDate) {
+      setDueDate(currentDate);
+    }
   };
 
   return (
@@ -55,21 +74,54 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
         placeholder="Enter task title"
         placeholderTextColor={theme === "dark" ? "#aaa" : "#666"}
       />
-      <Text style={styles.label}>Description (Optional)</Text>
+      <Text style={[styles.label, theme === "dark" && styles.darkLabel]}>
+        Description (Optional)
+      </Text>
       <TextInput
-        style={[styles.input, styles.textArea]}
+        style={[
+          styles.input,
+          styles.textArea,
+          theme === "dark" && styles.darkInput,
+        ]}
         value={description}
         onChangeText={setDescription}
         placeholder="Enter task description"
         multiline
       />
-      <Text style={styles.label}>Due Date (Optional, YYYY-MM-DD)</Text>
-      <TextInput
-        style={styles.input}
-        value={dueDate}
-        onChangeText={setDueDate}
-        placeholder="YYYY-MM-DD"
-      />
+      <Text style={[styles.label, theme === "dark" && styles.darkLabel]}>
+        Due Date (Optional, YYYY-MM-DD)
+      </Text>
+      <Pressable
+        style={[styles.dateButton, theme === "dark" && styles.darkDateButton]}
+        onPress={showPicker}
+        testID="date-picker-button"
+      >
+        <Text
+          style={[
+            styles.dateButtonText,
+            theme === "dark" && styles.darkDateButtonText,
+          ]}
+        >
+          {dueDate ? formatDate(dueDate) : "Select Due Date"}
+        </Text>
+      </Pressable>
+      {showDatePicker && (
+        <View
+          style={[
+            styles.datePickerContainer,
+            theme === "dark" && styles.darkDatePickerContainer,
+          ]}
+        >
+          <DateTimePicker
+            value={dueDate || new Date()}
+            mode="date"
+            display={Platform.OS === "ios" ? "inline" : "default"}
+            onChange={onDateChange}
+            testID="date-picker"
+            textColor={theme === "dark" ? "#fff" : "#000"} 
+          />
+        </View>
+      )}
       <TouchableOpacity
         style={[styles.saveButton, theme === "dark" && styles.darkSaveButton]}
         onPress={handleAddTask}
@@ -104,6 +156,24 @@ const styles = StyleSheet.create({
   },
   darkSaveButton: { backgroundColor: "#005BB5" },
   saveButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  dateButton: {
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  darkDateButton: { borderColor: "#666", backgroundColor: "#333" },
+  dateButtonText: { fontSize: 16, color: "#007AFF" },
+  darkDateButtonText: { color: "#4DA8FF" },
+  datePickerContainer: {
+    marginBottom: 16,
+    backgroundColor: "#fff",
+  },
+  darkDatePickerContainer: {
+    backgroundColor: "#333",
+  },
 });
 
 export default AddTaskScreen;
