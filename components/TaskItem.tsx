@@ -74,7 +74,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete }) => {
             <Text
               style={[styles.dueDate, theme === "dark" && styles.darkDueDate]}
             >
-              Due: {`${task.dueDate?.toDateString()}`}
+              Due: {`${task.dueDate ? task.dueDate?.toDateString() : ""}`}
             </Text>
           )}
         </View>

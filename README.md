@@ -29,3 +29,12 @@ A To-Do List app built with Expo, TypeScript, React Navigation, AsyncStorage, an
    ```bash
    git clone https://github.com/muyiwer/todo-app-mobile.git
    cd todo-list-app
+
+
+   ## Voice Feature Implementation Notes
+
+**Current State (Demo):**
+The iOS/Android voice feature uses simulated transcription to demonstrate the end-to-end flow without requiring API keys or backend infrastructure. This allows evaluators to test the feature immediately.
+
+**Production Ready:**
+The architecture supports real speech-to-text integration (see SPEECH_API_INTEGRATION.md). Integration with Google Cloud Speech-to-Text or AssemblyAI takes ~2 hours and is documented in the included guide.
